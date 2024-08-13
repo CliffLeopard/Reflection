@@ -1,0 +1,1 @@
+-keep class com.cliff.reflection.common.annotation.* {*;}
