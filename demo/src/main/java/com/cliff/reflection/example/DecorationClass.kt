@@ -1,12 +1,12 @@
 package com.cliff.reflection.example
 
+import com.cliff.reflection.common.IReflect
 import com.cliff.reflection.common.annotation.PField
 import com.cliff.reflection.common.annotation.PMethod
 import com.cliff.reflection.common.annotation.PMethodParameter
 import com.cliff.reflection.common.annotation.PStaticField
 import com.cliff.reflection.common.annotation.PStaticMethod
 import com.cliff.reflection.common.annotation.ProxyClass
-import reflect.android.app.IReflect
 
 /**
  * @Author CliffLeopard

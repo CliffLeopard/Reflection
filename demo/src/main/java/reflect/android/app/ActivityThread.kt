@@ -1,9 +1,8 @@
 package reflect.android.app
 
-import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.util.ArrayMap
-import com.cliff.reflection.common.annotation.PConstructor
+import com.cliff.reflection.common.IReflect
 import com.cliff.reflection.common.annotation.PField
 import com.cliff.reflection.common.annotation.PMethod
 import com.cliff.reflection.common.annotation.PMethodParameter

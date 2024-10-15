@@ -1,10 +1,10 @@
 package com.cliff.reflection.example
 
+import com.cliff.reflection.common.IReflect
 import com.cliff.reflection.common.annotation.PConstructor
 import com.cliff.reflection.common.annotation.PField
 import com.cliff.reflection.common.annotation.PMethod
 import com.cliff.reflection.common.annotation.ProxyClass
-import reflect.android.app.IReflect
 
 /**
  * @Author CliffLeopard

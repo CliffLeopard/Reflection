@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.orhanobut.logger.Logger
 import reflect.android.app.ActivityThread
-import reflect.android.app.ActivityThread__Functions.__instance__
 import reflect.android.app.ActivityThread__Functions.currentActivityThread
 import reflect.android.app.ActivityThread__Functions.getSPackageManager
 
