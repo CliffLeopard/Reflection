@@ -38,7 +38,8 @@ You Can write a new Kotlin interface
 ```kotlin
 
 @ProxyClass(targetType ="Hidden")
-interface DecorationHidden {
+interface DecorationHidden:IReflect {
+    companion object
     @PField
     var str:String?
     @PField
@@ -46,7 +47,8 @@ interface DecorationHidden {
 }
 
 @ProxyClass(targetType ="A")
-interface DecorationA {
+interface DecorationA:IReflect {
+    companion object
     @PField
     var str:String?
     @PField
@@ -56,10 +58,10 @@ interface DecorationA {
     fun method1()
 
     @PMethod
-    fun method2(String str,@PMethodParameter("Hidden") hidden:Any)
+    fun method2(str:String ,@PMethodParameter("Hidden") hidden:Any)
 
     @PMethod(targetType="Hidden")
-    fun method3(String str):Any
+    fun method3(str:String):Any
 }
 
 ```
