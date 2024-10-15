@@ -24,6 +24,7 @@ import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.STAR
 import com.squareup.kotlinpoet.TypeSpec
@@ -165,8 +166,13 @@ class ReflectVisitor(
             // 生成Companion对象的扩展函数，用于访问静态方法
             val funSpec = FunSpec.builder(methodName)
                 .receiver(classDeclaration.toClassName().nestedClass("Companion"))
+                .addParameters(fct.parameters.map {
+                    ParameterSpec.builder(it.name?.asString() ?: "", it.type.resolve().toClassName()).build()
+                })
                 .addModifiers(KModifier.PUBLIC)
                 .returns(fct.returnType!!.toTypeName())
+                .addStatement(if (fct.parameters.isEmpty()) "" else  "val realArgs = arrayOf(%L)",
+                    fct.parameters.map { it.name?.asString() }.joinToString(","))
                 .addNamedCode("val proxyResult = Reflect.invokeMethod(%obj:L, %clazz:L, %methodName:S, true, *%sections:L)", invokeArg)
                 .addStatement("")
                 .addCode("return %L as %T", wrapResultCode(fct.returnType, mAv), fct.returnType?.toTypeName())
