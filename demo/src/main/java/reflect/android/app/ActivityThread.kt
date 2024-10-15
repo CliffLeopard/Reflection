@@ -15,12 +15,11 @@ import java.lang.ref.WeakReference
 @ProxyClass("android.app.ActivityThread")
 interface ActivityThread : IReflect {
     companion object
+    @PStaticMethod("android.app.ActivityThread")
+    fun currentActivityThread(): ActivityThread?
 
     @PStaticField("android.content.pm.IPackageManager")
     val sPackageManager: Any?
-
-    @PStaticMethod("android.app.ActivityThread")
-    fun currentActivityThread(): ActivityThread?
 
     @PField("android.app.ActivityThread\$ApplicationThread")
     val mAppThread: Any?
@@ -35,7 +34,7 @@ interface ActivityThread : IReflect {
     fun getProcessName(): String?
 
     @PMethod("android.app.ActivityThread\$ApplicationThread")
-    fun getApplicationThread(): Any
+    fun getApplicationThread(): Any?
 
     @PMethod("android.app.LoadedApk")
     fun getPackageInfo(
@@ -47,8 +46,4 @@ interface ActivityThread : IReflect {
         registerPackage: Boolean = false,
         isSdkSandbox: Boolean = false
     ): Any
-
-    @PConstructor("com.cliff.reflection.SectionAdapter")
-    fun newSectionAdapter(context: Context):Any
-
 }

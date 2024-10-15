@@ -22,7 +22,7 @@ class ReflectSymbolProcessor(
                 it is KSClassDeclaration && it.validate()
             }
             .forEach { annotation ->
-                annotation.accept(ReflectFunctionVisitor(logger, codeGenerator), Unit)
+                annotation.accept(ReflectVisitor(logger, codeGenerator), Unit)
             }
         return result
     }

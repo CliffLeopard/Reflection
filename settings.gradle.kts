@@ -20,7 +20,7 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "reflection"
-include(":app")
+include(":demo")
 include(":reflection-common")
 include(":reflection-processor")
 include(":hidden")
