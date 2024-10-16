@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.cliff.hidden.HiddenApi
 import com.cliff.reflection.example.DecorationClass
 import com.cliff.reflection.example.DecorationClass_DecorationInsideClass__Functions.__instance__
 import com.cliff.reflection.example.DecorationClass__Functions.__instance__
@@ -16,6 +17,12 @@ import com.cliff.reflection.example.DecorationHidden__Functions.newHiddenClass4
 import com.cliff.reflection.example.HiddenClass
 import com.cliff.reflection.example.TargetClass
 import com.orhanobut.logger.Logger
+import reflect.android.app.ActivityThread
+import reflect.android.app.ActivityThread__Functions.currentActivityThread
+import reflect.android.app.LoadedApk
+import reflect.android.app.LoadedApk__Functions.__instance__
+import reflect.android.view.DisplayAdjustments
+import reflect.android.view.DisplayAdjustments__Functions.__instance__
 
 class MainViewModel : ViewModel() {
     private val _sections = MutableLiveData(baseSections)
@@ -142,6 +149,17 @@ class MainViewModel : ViewModel() {
                 Logger.i("内部类作为隐藏类返回: hidden3:${hidden3?.toStr()}")
                 Logger.i("内部类作为隐藏类返回: hidden4:${DecorationHidden.__instance__(hidden4).toStr()}")
                 Logger.i("内部类作为隐藏类返回: hidden5:${hidden5.toStr()}")
+            },
+
+            Section("HiddenAPi") {
+                val activityThread = ActivityThread.currentActivityThread()!!
+                val mPackages = activityThread.mPackages
+                val nowLoadedApk = mPackages[context.packageName]!!.get()!!
+                Logger.i("nowLoadedApk: ${nowLoadedApk.javaClass.canonicalName}")
+                val reLoadedApk = LoadedApk.__instance__(nowLoadedApk)
+                val mDisplayAdjustments = reLoadedApk.mDisplayAdjustments
+                val mCompatInfo = DisplayAdjustments.__instance__(mDisplayAdjustments).mCompatInfo
+                Logger.i("mCompatInfo: ${mCompatInfo.mCompatibilityFlags}")
             },
 
             Section("Java-Kotlin类型") {

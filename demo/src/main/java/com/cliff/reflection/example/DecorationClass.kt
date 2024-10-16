@@ -21,17 +21,17 @@ interface DecorationClass : IReflect {
     var TAG: String?
 
     @PStaticField("com.cliff.reflection.example.HiddenClass")
-    var hiddenField:Any?
+    var hiddenField: Any?
+
     @PStaticField("com.cliff.reflection.example.HiddenClass")
-    var hiddenField2:DecorationHidden?
+    var hiddenField2: DecorationHidden?
 
     @PStaticField("com.cliff.reflection.example.TargetClass\$TargetInsideClass")
-    var hiddenInside:DecorationInsideClass?
+    var hiddenInside: DecorationInsideClass?
 
 
     @PStaticMethod
     fun sMethod1(): String
-
 
 
     @PField
@@ -47,32 +47,32 @@ interface DecorationClass : IReflect {
     fun print()
 
     @PMethod
-    fun method1():Int
+    fun method1(): Int
 
     @PMethod
-    fun method2(name:String?,age:Int):String
+    fun method2(name: String?, age: Int): String
 
     @PMethod
-    fun method3(name:String,age:Int, list: List<Map<String,String>>):String
+    fun method3(name: String, age: Int, list: List<Map<String, String>>): String
 
     @PMethod
-    fun method4(name:String,age:Int, @PMethodParameter("com.cliff.reflection.example.HiddenClass") hiddenClass: Any):String
+    fun method4(name: String, age: Int, @PMethodParameter("com.cliff.reflection.example.HiddenClass") hiddenClass: Any): String
 
     @PMethod
-    fun method42(name:String,age:Int, @PMethodParameter("com.cliff.reflection.example.HiddenClass") hiddenClass: DecorationHidden):String
+    fun method42(name: String, age: Int, @PMethodParameter("com.cliff.reflection.example.HiddenClass") hiddenClass: DecorationHidden): String
 
     @PMethod("com.cliff.reflection.example.HiddenClass")
-    fun method5(name:String,age:Int):Any
+    fun method5(name: String, age: Int): Any
 
     @PMethod("com.cliff.reflection.example.HiddenClass")
-    fun method6(name:String,age:Int):DecorationHidden?
+    fun method6(name: String, age: Int): DecorationHidden?
 
     @PMethod("com.cliff.reflection.example.TargetClass\$TargetInsideClass")
-    fun method7():DecorationInsideClass
+    fun method7(): DecorationInsideClass
 
 
     @ProxyClass(targetType = "com.cliff.reflection.example.TargetClass\$TargetInsideClass")
-    interface DecorationInsideClass : IReflect  {
+    interface DecorationInsideClass : IReflect {
         companion object
 
         @PStaticField
@@ -80,7 +80,6 @@ interface DecorationClass : IReflect {
 
         @PStaticMethod
         fun sMethod1(): String
-
 
 
         @PField
@@ -96,21 +95,21 @@ interface DecorationClass : IReflect {
         fun print()
 
         @PMethod
-        fun method1():Int
+        fun method1(): Int
 
         @PMethod
-        fun method2(name:String?,age:Int):String
+        fun method2(name: String?, age: Int): String
 
         @PMethod
-        fun method3(name:String,age:Int, list: List<Map<String,String>>):String
+        fun method3(name: String, age: Int, list: List<Map<String, String>>): String
 
         @PMethod
-        fun method4(name:String,age:Int, @PMethodParameter("com.cliff.reflection.example.HiddenClass") hiddenClass: Any):String
+        fun method4(name: String, age: Int, @PMethodParameter("com.cliff.reflection.example.HiddenClass") hiddenClass: Any): String
 
         @PMethod
-        fun method42(name:String,age:Int, @PMethodParameter("com.cliff.reflection.example.HiddenClass") hiddenClass: DecorationHidden):String
+        fun method42(name: String, age: Int, @PMethodParameter("com.cliff.reflection.example.HiddenClass") hiddenClass: DecorationHidden): String
 
         @PMethod("com.cliff.reflection.example.HiddenClass")
-        fun method5(name:String,age:Int):Any
+        fun method5(name: String, age: Int): Any
     }
 }
