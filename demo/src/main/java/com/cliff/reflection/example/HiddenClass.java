@@ -18,6 +18,11 @@ public class HiddenClass {
         this.age = age;
     }
 
+    private HiddenClass() {
+        this.name = "KKK";
+        this.age = 123;
+    }
+
     public void print() {
         Logger.i("print:name=" + name + " ;age=" + age);
     }

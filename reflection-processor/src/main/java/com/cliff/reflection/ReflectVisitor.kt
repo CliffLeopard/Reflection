@@ -108,7 +108,7 @@ class ReflectVisitor(
             when (mAnt) {
                 PMethod::class.java.name -> invokeMethod(false, mAv, fct, codeBuilder, implClass, classDeclaration)
                 PStaticMethod::class.java.name -> invokeMethod(true, mAv, fct, codeBuilder, implClass, classDeclaration)
-                PConstructor::class.java.name -> invokeConstructor(mAv!!, fct, codeBuilder)
+                PConstructor::class.java.name -> invokeConstructor(mAv!!, fct, codeBuilder, implClass, classDeclaration)
                 else -> Unit
             }
         }
@@ -171,8 +171,10 @@ class ReflectVisitor(
                 })
                 .addModifiers(KModifier.PUBLIC)
                 .returns(fct.returnType!!.toTypeName())
-                .addStatement(if (fct.parameters.isEmpty()) "" else  "val realArgs = arrayOf(%L)",
-                    fct.parameters.map { it.name?.asString() }.joinToString(","))
+                .addStatement(
+                    if (fct.parameters.isEmpty()) "" else "val realArgs = arrayOf(%L)",
+                    fct.parameters.map { it.name?.asString() }.joinToString(",")
+                )
                 .addNamedCode("val proxyResult = Reflect.invokeMethod(%obj:L, %clazz:L, %methodName:S, true, *%sections:L)", invokeArg)
                 .addStatement("")
                 .addCode("return %L as %T", wrapResultCode(fct.returnType, mAv), fct.returnType?.toTypeName())
@@ -182,7 +184,10 @@ class ReflectVisitor(
     }
 
     // 构造函数反射
-    private fun invokeConstructor(mAv: String, fct: KSFunctionDeclaration, codeBuilder: CodeBlock.Builder) {
+    private fun invokeConstructor(
+        mAv: String, fct: KSFunctionDeclaration, codeBuilder: CodeBlock.Builder, implClass: TypeSpec.Builder,
+        classDeclaration: KSClassDeclaration
+    ) {
         val methodInfo = prepareMethodInfo(fct)
         val typeCode = getTypeCode(mAv)
         codeBuilder
@@ -192,6 +197,25 @@ class ReflectVisitor(
             )
             .add("Reflect.newInstance(%L , *%L)", typeCode, methodInfo.sections)
             .endControlFlow()
+
+        // 生成Companion对象的扩展函数，用于访问构造函数
+        val methodName = fct.simpleName.asString()
+        val funSpec = FunSpec.builder(methodName)
+            .receiver(classDeclaration.toClassName().nestedClass("Companion"))
+            .addParameters(fct.parameters.map {
+                ParameterSpec.builder(it.name?.asString() ?: "", it.type.resolve().toClassName()).build()
+            })
+            .addModifiers(KModifier.PUBLIC)
+            .returns(fct.returnType!!.toTypeName())
+            .addStatement(
+                if (fct.parameters.isEmpty()) "" else "val realArgs = arrayOf(%L)",
+                fct.parameters.map { it.name?.asString() }.joinToString(",")
+            )
+            .addCode("val proxyResult = Reflect.newInstance(%L , *%L)", typeCode, methodInfo.sections)
+            .addStatement("")
+            .addCode("return %L as %T", wrapResultCode(fct.returnType, mAv), fct.returnType?.toTypeName())
+            .build()
+        implClass.addFunction(funSpec)
     }
 
     private fun accessObjField(

@@ -29,4 +29,13 @@ interface DecorationHidden: IReflect {
 
     @PConstructor("com.cliff.reflection.example.HiddenClass")
     fun newHiddenClass(name: String, age: Int): Any
+
+    @PConstructor("com.cliff.reflection.example.HiddenClass")
+    fun newHiddenClass2(name: String, age: Int): DecorationHidden?
+
+    @PConstructor("com.cliff.reflection.example.HiddenClass")
+    fun newHiddenClass3(): DecorationHidden?
+
+    @PConstructor("com.cliff.reflection.example.HiddenClass")
+    fun newHiddenClass4(): Any
 }

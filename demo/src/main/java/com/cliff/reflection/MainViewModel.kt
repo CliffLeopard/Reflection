@@ -9,6 +9,10 @@ import com.cliff.reflection.example.DecorationClass_DecorationInsideClass__Funct
 import com.cliff.reflection.example.DecorationClass__Functions.__instance__
 import com.cliff.reflection.example.DecorationHidden
 import com.cliff.reflection.example.DecorationHidden__Functions.__instance__
+import com.cliff.reflection.example.DecorationHidden__Functions.newHiddenClass
+import com.cliff.reflection.example.DecorationHidden__Functions.newHiddenClass2
+import com.cliff.reflection.example.DecorationHidden__Functions.newHiddenClass3
+import com.cliff.reflection.example.DecorationHidden__Functions.newHiddenClass4
 import com.cliff.reflection.example.HiddenClass
 import com.cliff.reflection.example.TargetClass
 import com.orhanobut.logger.Logger
@@ -125,6 +129,19 @@ class MainViewModel : ViewModel() {
             Section("内部类作为隐藏类返回:method7") {
                 val result = decoration.method7()
                 Logger.i("内部类作为隐藏类返回:${result.toString()}")
+            },
+
+            Section("隐藏类构造函数:") {
+                val hidden1: Any = DecorationHidden.newHiddenClass("Cliff", 12)
+                val hidden2: DecorationHidden? = DecorationHidden.newHiddenClass2("Leopard", 13)
+                val hidden3: DecorationHidden? = DecorationHidden.newHiddenClass3()
+                val hidden4: Any = DecorationHidden.newHiddenClass4()
+                val hidden5: HiddenClass = DecorationHidden.newHiddenClass4() as HiddenClass
+                Logger.i("内部类作为隐藏类返回: hidden1:${DecorationHidden.__instance__(hidden1).toStr()}")
+                Logger.i("内部类作为隐藏类返回: hidden2:${hidden2?.toStr()}")
+                Logger.i("内部类作为隐藏类返回: hidden3:${hidden3?.toStr()}")
+                Logger.i("内部类作为隐藏类返回: hidden4:${DecorationHidden.__instance__(hidden4).toStr()}")
+                Logger.i("内部类作为隐藏类返回: hidden5:${hidden5.toStr()}")
             },
 
             Section("Java-Kotlin类型") {
