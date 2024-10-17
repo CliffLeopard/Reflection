@@ -16,11 +16,6 @@ fun String.kotlinToJava(): String {
     return kotlinBuiltIns[simpleName] ?: simpleName
 }
 
-// 根据类名获取类
-fun String.toClass(): Class<*> {
-    return Class.forName(this)
-}
-
 // Kotlin与Java类型对
 val kotlinBuiltIns: Map<String, String> = mapOf(
     "kotlin.Annotation" to "java.lang.annotation.Annotation",
