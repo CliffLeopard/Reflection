@@ -45,18 +45,17 @@ class ReflectVisitor(
         val clzAv = clzAno.arguments.first { it.name!!.asString() == "targetType" }.value.toString()
         val proxyClz = classDeclaration.toClassName()
 
-        val implFile =
-            FileSpec.builder(proxyClz.packageName, "${outerClassNamePrefix(classDeclaration)}${proxyClz.simpleName}${implFileSuffix}.kt")
         val implClass = TypeSpec.objectBuilder("${outerClassNamePrefix(classDeclaration)}${proxyClz.simpleName}${implFileSuffix}")
-
         implClass.addFunction(originFunction(classDeclaration, clzAv))
         implClass.addFunction(instanceFunction(classDeclaration, implClass))
-        implFile.addType(implClass.build())
-            .addImport("java.lang.reflect", "Proxy")
-            .addImport("com.cliff.reflection.common", "Reflect")
-            .addImport("com.cliff.reflection.common", "Section")
-            .build()
-            .writeTo(codeGenerator, Dependencies(true, classDeclaration.containingFile!!))
+        val fileSpec =
+            FileSpec.builder(proxyClz.packageName, "${outerClassNamePrefix(classDeclaration)}${proxyClz.simpleName}${implFileSuffix}.kt")
+                .addImport("java.lang.reflect", "Proxy")
+                .addImport("com.cliff.reflection.common", "Reflect")
+                .addImport("com.cliff.reflection.common", "Section")
+                .addType(implClass.build())
+                .build()
+        fileSpec.writeTo(codeGenerator, Dependencies(true, classDeclaration.containingFile!!))
     }
 
     // 代理对象生成
@@ -150,17 +149,15 @@ class ReflectVisitor(
         invokeArg["sections"] = methodInfo.sections
 
         codeBuilder
-            .addStatement("parameterTypes == %S &&", methodInfo.proxyTypes.joinToString(transform = String::kotlinToJava))
-            .indent()
             .beginControlFlow(
-                "methodName == %S -> ",
+                "parameterTypes == %S && methodName == %S ->",
+                methodInfo.proxyTypes.joinToString(transform = String::kotlinToJava),
                 methodName
             )
             .addNamed("val proxyResult = Reflect.invokeMethod(%obj:L, %clazz:L, %methodName:S, $isStatic, *%sections:L)", invokeArg)
             .addStatement("")
             .add(wrapResultCode(fct.returnType, mAv))
             .endControlFlow()
-            .unindent()
 
         if (isStatic) {
             // 生成Companion对象的扩展函数，用于访问静态方法
@@ -192,8 +189,9 @@ class ReflectVisitor(
         val typeCode = getTypeCode(mAv)
         codeBuilder
             .beginControlFlow(
-                "methodName == %S && parameterTypes == %S -> ",
-                fct.simpleName.asString(), methodInfo.proxyTypes.joinToString(transform = String::kotlinToJava)
+                "parameterTypes == %S && methodName == %S ->",
+                methodInfo.proxyTypes.joinToString(transform = String::kotlinToJava),
+                fct.simpleName.asString()
             )
             .add("Reflect.newInstance(%L , *%L)", typeCode, methodInfo.sections)
             .endControlFlow()
@@ -230,10 +228,7 @@ class ReflectVisitor(
         val getName = getMethod(fieldName)
         val setName = setMethod(fieldName)
         codeBuilder
-            .beginControlFlow(
-                "methodName == %S && parameterTypes == %S -> ",
-                getName, ""
-            )
+            .beginControlFlow("parameterTypes == %S && methodName == %S ->", "", getName)
             .addStatement(
                 "val proxyResult = Reflect.getField(%L, %L, %L, %S)",
                 if (isStatic) "null" else "obj",
@@ -242,8 +237,9 @@ class ReflectVisitor(
             .add(wrapResultCode(pct.type, fAv))
             .endControlFlow()
             .beginControlFlow(
-                "methodName == %S && parameterTypes == %S -> ",
-                setName, pct.type.toTypeName().toString().replace("`", "").kotlinToJava()
+                "parameterTypes == %S && methodName == %S ->",
+                pct.type.toTypeName().toString().replace("`", "").kotlinToJava(),
+                setName
             )
             .addStatement(
                 "Reflect.setField(%L, %L, %L, %S, %L)",
@@ -392,32 +388,31 @@ class ReflectVisitor(
         val realTypes = mutableListOf<String>()
         val sectionsBuilder = CodeBlock.builder()
 
-        if (fct.parameters.isEmpty())
-            sectionsBuilder.add("arrayOf(")
-        else
-            sectionsBuilder.addStatement("arrayOf(⇥")
-
-        fct.parameters.forEachIndexed { index, par ->
-            // 参数类型
-            val parType = par.type.toTypeName().toString().replace("`", "")
-            val proxyJavaType = parType.kotlinToJava()
-            val proxyKotlinType = parType.toJavaType()
-            // 方法参数注解
-            val fAv = par.annotations.firstOrNull {
-                PMethodParameter::class.java.name == it.annotationType.toTypeName().toString().replace("`", "")
-            }?.arguments?.firstOrNull { "targetType" == it.name?.asString() }?.value?.toString()
-            val realJavaType = if (fAv.isNullOrBlank()) proxyJavaType else fAv.kotlinToJava()
-            val realKotlinType = if (fAv.isNullOrBlank()) proxyKotlinType else fAv.removeSuffix("?")
-            val realArg = wrapParameterCode(par.type, fAv, index)
-            proxyTypes.add(proxyJavaType)
-            realTypes.add(realJavaType)
-            sectionsBuilder.addStatement("Section(%L,%L),", realArg, getTypeCode(realKotlinType))
-        }
-
-        if (fct.parameters.isEmpty())
+        if (fct.parameters.isEmpty()) {
+            sectionsBuilder.add("arrayOf()")
+        } else {
+            sectionsBuilder.add("arrayOf(⇥")
+            fct.parameters.forEachIndexed { index, par ->
+                // 参数类型
+                val parType = par.type.toTypeName().toString().replace("`", "")
+                val proxyJavaType = parType.kotlinToJava()
+                val proxyKotlinType = parType.toJavaType()
+                // 方法参数注解
+                val fAv = par.annotations.firstOrNull {
+                    PMethodParameter::class.java.name == it.annotationType.toTypeName().toString().replace("`", "")
+                }?.arguments?.firstOrNull { "targetType" == it.name?.asString() }?.value?.toString()
+                val realJavaType = if (fAv.isNullOrBlank()) proxyJavaType else fAv.kotlinToJava()
+                val realKotlinType = if (fAv.isNullOrBlank()) proxyKotlinType else fAv.removeSuffix("?")
+                val realArg = wrapParameterCode(par.type, fAv, index)
+                proxyTypes.add(proxyJavaType)
+                realTypes.add(realJavaType)
+                sectionsBuilder.add("Section(%L,%L)", realArg, getTypeCode(realKotlinType))
+                if (index != fct.parameters.size - 1) {
+                    sectionsBuilder.add(",")
+                }
+            }
             sectionsBuilder.add(")")
-        else
-            sectionsBuilder.addStatement(")")
+        }
         return MethodInfo(proxyTypes, realTypes, sectionsBuilder.build())
     }
 
