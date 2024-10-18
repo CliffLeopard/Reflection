@@ -1,6 +1,7 @@
 package com.cliff.reflection
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -162,6 +163,21 @@ class MainViewModel : ViewModel() {
                 Logger.i("mCompatInfo: ${mCompatInfo.mCompatibilityFlags}")
             },
 
+            Section("HiddenApi2") {
+                val clazz = Class.forName("android.app.ActivityThread")
+                val methodName = "getPackageInfo"
+                val parameterTypes = arrayOf(
+                    Class.forName("android.content.pm.ApplicationInfo"),
+                    Class.forName("android.content.res.CompatibilityInfo"),
+                    Class.forName("java.lang.ClassLoader"),
+                    Boolean::class.java,
+                    Boolean::class.java,
+                    Boolean::class.java,
+                    Boolean::class.java
+                )
+                val method = HiddenApi.getDeclaredMethod(clazz, methodName, *parameterTypes).apply { isAccessible = true }
+                Logger.i("method:${method.name}")
+            },
             Section("Java-Kotlin类型") {
                 val any = Any()
                 Logger.i("any :${any::class.java.canonicalName}")

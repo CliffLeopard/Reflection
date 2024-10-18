@@ -29,14 +29,10 @@ interface IExecutor {
         @Throws(NoSuchFieldException::class)
         override fun accessField(clazz: Class<*>, isStatic: Boolean, fieldName: String): Field {
             val fieldKey = clazz.canonicalName + isStatic + fieldName
-            return try {
-                if (fields[fieldKey] == null || fields[fieldKey]!!.get() == null) {
-                    fields[fieldKey] = WeakReference(findField(clazz, isStatic, fieldName))
-                }
-                fields[fieldKey]!!.get()!!
-            } catch (exp: Exception) {
-                throw NoSuchFieldException()
+            if (fields[fieldKey] == null || fields[fieldKey]!!.get() == null) {
+                fields[fieldKey] = WeakReference(findField(clazz, isStatic, fieldName))
             }
+            return fields[fieldKey]!!.get()!!
         }
 
         @Throws(NoSuchFieldException::class)
@@ -54,14 +50,10 @@ interface IExecutor {
             val parameterTypes = sections.map { it.type }.toTypedArray()
             val parameters = sections.map { it.data }.toTypedArray()
             val methodKey = clazz.canonicalName + methodName + isStatic + parameterTypes.joinToString()
-            return try {
-                if (methods[methodKey] == null || methods[methodKey]!!.get() == null) {
-                    methods[methodKey] = WeakReference(findMethod(clazz, methodName, isStatic, *parameterTypes))
-                }
-                methods[methodKey]!!.get()!!.invoke(if (isStatic) null else obj, *parameters)
-            } catch (exp: Exception) {
-                throw NoSuchMethodException()
+            if (methods[methodKey] == null || methods[methodKey]!!.get() == null) {
+                methods[methodKey] = WeakReference(findMethod(clazz, methodName, isStatic, *parameterTypes))
             }
+            return methods[methodKey]!!.get()!!.invoke(if (isStatic) null else obj, *parameters)
         }
 
         @Throws(NoSuchMethodException::class)
